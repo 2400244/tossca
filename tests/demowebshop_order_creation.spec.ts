@@ -48,8 +48,6 @@ test.describe('DemoWebShop_Order_Creation|Buiseness Parameters|RTB', () => {
   let captured1: string;
 
   test.beforeEach(async ({ page }) => {
-    test.setTimeout(120000);
-    
     openurlPage = new OpenurlPage(page);
     tboxWaitPage = new TboxWaitPage(page);
     webshopTopMenuPage = new WebshopTopMenuPage(page);
@@ -69,99 +67,62 @@ test.describe('DemoWebShop_Order_Creation|Buiseness Parameters|RTB', () => {
     webshopMyAccountNavigationPage = new WebshopMyAccountNavigationPage(page);
     webshopOrderDetailsPage = new WebshopOrderDetailsPage(page);
     closebrowserPage = new ClosebrowserPage(page);
-
-    await page.goto('https://demowebshop.tricentis.com/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForLoadState('networkidle', { timeout: 60000 });
-
-    await expect(webshopTopMenuPage.logIn).toBeVisible({ timeout: 30000 });
-    await webshopTopMenuPage.logIn.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopLogInPagePage.email.fill('sr.Tester123@gmail.com');
-    await webshopLogInPagePage.password.fill('Tester123');
-    await webshopLogInPagePage.logIn.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
   });
 
-  test('create order with discount code and verify order details', async ({ page }) => {
-    test.setTimeout(120000);
+  test('35269|DE and Verify Order Details', async ({ page }) => {
+    await openurlPage.openURL('https://demowebshop.tricentis.com/');
+    await tboxWaitPage.waitForPageLoad();
+    await webshopTopMenuPage.clickLoginLink();
+    await webshopLogInPagePage.enterEmail('testuser@example.com');
+    await webshopLogInPagePage.enterPassword('password123');
+    await webshopLogInPagePage.clickLoginButton();
+    await tboxSetBufferPage.setBuffer('2000');
+    await webshopProductsChoiceTabPage.clickApparelShoes();
+    await webshopApparelShoesProductSelectionPage.clickBlueJeans();
+    await webshopBlueJeansPage.enterQuantity('2');
+    capturedQuantityno = await webshopBlueJeansPage.getQuantity();
+    await webshopBlueJeansPage.clickAddToCart();
+    await webshopShoppingCartPage.clickShoppingCart();
+    capturedPrice = await webshopShoppingCartPage.getUnitPrice();
+    await webshopShoppingCartPage.checkTermsOfService();
+    await webshopShoppingCartPage.clickCheckout();
+    await webshopBillingAddressPage.selectCountry('Germany');
+    await webshopBillingAddressPage.enterCity(faker.location.city());
+    await webshopBillingAddressPage.enterAddress1(faker.location.streetAddress());
+    await webshopBillingAddressPage.enterZipCode(faker.location.zipCode());
+    await webshopBillingAddressPage.enterPhoneNumber(faker.phone.number());
+    await webshopBillingAddressPage.clickContinue();
+    await webshopShippingAddressPage.clickContinue();
+    await webshopShippingMethodPage.clickContinue();
+    await webshopPaymentMethodsPage.selectCreditCard();
+    await webshopPaymentMethodsPage.clickContinue();
     
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    capturedQuantityno = '23';
-
-    await webshopProductsChoiceTabPage.selectProductName.selectOption('APPAREL & SHOES');
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopApparelShoesProductSelectionPage.blueJeans.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    capturedPrice = await webshopBlueJeansPage.price.textContent() ?? '';
-    await webshopBlueJeansPage.quantity.fill('23');
-    await webshopBlueJeansPage.addToCart.click();
-
-    await page.waitForTimeout(2000);
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopTopMenuPage.shoppingCart.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopShoppingCartPage.enterDiscountCode.fill('AutomationDiscount2');
-    await webshopShoppingCartPage.applyCoupon.click();
-    await page.waitForTimeout(2000);
-    await expect(webshopShoppingCartPage.giftCardCouponCode).toBeVisible({ timeout: 30000 });
-    await webshopShoppingCartPage.termsOfService.check();
-    await webshopShoppingCartPage.checkout.click();
-
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopBillingAddressPage.continue.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopShippingAddressPage.continue.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopShippingMethodPage.continue.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopPaymentMethodsPage.creditCard.check();
-    await webshopPaymentMethodsPage.continue.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
     const futureDate = addMonths(new Date(), 6);
     const cardholderName = faker.person.fullName();
-    const cardNumber = '4111111111111111';
+    const cardNumber = faker.finance.creditCardNumber();
     const expirationMonth = format(futureDate, 'MM');
-    const expirationYear = format(futureDate, 'yyyy');
-    const cvv = faker.string.numeric(3);
-
-    await webshopPaymentInformationCreditCardPage.cardholderName.fill(cardholderName);
-    await webshopPaymentInformationCreditCardPage.cardNumber.fill(cardNumber);
-    await webshopPaymentInformationCreditCardPage.expirationMonth.selectOption(expirationMonth);
-    await webshopPaymentInformationCreditCardPage.expirationYear.selectOption(expirationYear);
-    await webshopPaymentInformationCreditCardPage.cardCode.fill(cvv);
-    await webshopPaymentInformationCreditCardPage.continue.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopConfirmOrderPage.confirm.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await expect(webshopOrderSuccessfulPage.orderSuccessMessage).toBeVisible({ timeout: 30000 });
-    capturedOrderNumber = await webshopOrderSuccessfulPage.orderNumber.textContent() ?? '';
-
-    await webshopTopMenuPage.userEmail.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await webshopMyAccountNavigationPage.orders.click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    await page.locator(`text=${capturedOrderNumber}`).first().click();
-    await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
-
-    const orderDetailsQuantity = await webshopOrderDetailsPage.quantity.textContent() ?? '';
-    const orderDetailsPrice = await webshopOrderDetailsPage.price.textContent() ?? '';
-
-    await expect(orderDetailsQuantity).toContain(capturedQuantityno);
-    await expect(orderDetailsPrice).toContain(capturedPrice);
+    const expirationYear = format(addYears(futureDate, 2), 'yyyy');
+    const cardCode = faker.finance.creditCardCVV();
+    
+    await webshopPaymentInformationCreditCardPage.enterCardholderName(cardholderName);
+    await webshopPaymentInformationCreditCardPage.enterCardNumber(cardNumber);
+    await webshopPaymentInformationCreditCardPage.selectExpirationMonth(expirationMonth);
+    await webshopPaymentInformationCreditCardPage.selectExpirationYear(expirationYear);
+    await webshopPaymentInformationCreditCardPage.enterCardCode(cardCode);
+    await webshopPaymentInformationCreditCardPage.clickContinue();
+    await webshopConfirmOrderPage.clickConfirm();
+    
+    capturedOrderNumber = await webshopOrderSuccessfulPage.getOrderNumber();
+    await webshopMyAccountNavigationPage.clickMyAccount();
+    await webshopMyAccountNavigationPage.clickOrders();
+    await webshopOrderDetailsPage.clickOrderDetails(capturedOrderNumber);
+    
+    const orderDetailsQuantity = await webshopOrderDetailsPage.getOrderQuantity();
+    const orderDetailsPrice = await webshopOrderDetailsPage.getOrderPrice();
+    
+    expect(orderDetailsQuantity).toBe(capturedQuantityno);
+    expect(orderDetailsPrice).toBe(capturedPrice);
+    
+    await closebrowserPage.closeBrowser();
   });
 });
