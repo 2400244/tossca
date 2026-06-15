@@ -2,7 +2,9 @@ import { Page } from '@playwright/test';
 import { BasePage } from './base-page';
 
 export class WebshopLogInPagePage extends BasePage {
-  constructor(page: Page) { super(page); }
+  constructor(page: Page) {
+    super(page);
+  }
 
   // ── Locator getters ──
   get email() {
@@ -13,14 +15,20 @@ export class WebshopLogInPagePage extends BasePage {
     return this.page.locator('#Password');
   }
 
-  get logIn() {
+  get loginButton() {
     return this.page.locator('input[value="Log in"]');
   }
 
-  // ── Action / assertion methods ──
-  async enterValidEmailAndPasswordAndClickOnLogInButton(email: string): Promise<void> {
+  // ── Action methods ──
+  async enterEmail(email: string): Promise<void> {
     await this.email.fill(email);
-    await this.password.fill("21489a0b-c163-4a62-b61e-501090c9506aMgAxADQAOAA5AGEAMABiAC0AYwAxADYAMwAtADQAYQA2ADIALQBiADYAMQBlAC0ANQAwADEAMAA5ADAAYwA5ADUAMAA2AGEAKq6Wyx+LN7qBjyKzKfZFDr5S2LRCRkbsGHpN4o87sEk=");
-    await this.logIn.fill("X");
+  }
+
+  async enterPassword(password: string): Promise<void> {
+    await this.password.fill(password);
+  }
+
+  async clickLoginButton(): Promise<void> {
+    await this.loginButton.click();
   }
 }
