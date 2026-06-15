@@ -2,15 +2,15 @@ import { Page } from '@playwright/test';
 import { BasePage } from './base-page';
 
 export class TboxWaitPage extends BasePage {
-  constructor(page: Page) { super(page); }
-
-  // ── Locator getters ──
-  get duration() {
-    return this.page.getByLabel('Duration');
+  constructor(page: Page) {
+    super(page);
   }
 
-  // ── Action / assertion methods ──
-  async tboxWait(): Promise<void> {
-    await this.duration.fill("15000");
+  async tboxWait(seconds: number): Promise<void> {
+    await this.page.waitForTimeout(seconds * 1000);
+  }
+
+  async waitForPageLoad(): Promise<void> {
+    await this.page.waitForLoadState('networkidle');
   }
 }
